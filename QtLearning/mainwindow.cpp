@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
 	setWindowTitle(tr("Folger's first Qt Window"));
+	resize(400, 300);
 
 	openAction_ = new QAction(QIcon(":/images/doc-open"), tr("&Open..."), this);
 	openAction_->setShortcuts(QKeySequence::Open);

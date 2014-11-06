@@ -16,6 +16,7 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     make.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    make.h
 
 CONFIG += c++11

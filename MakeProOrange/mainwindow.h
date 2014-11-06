@@ -3,17 +3,23 @@
 
 #include <QMainWindow>
 #include <QCheckBox>
+#include <QGroupBox>
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	MainWindow(QWidget *parent = 0);
+	~MainWindow();
 
 private:
+	QGroupBox* PlatformGroup();
+	QGroupBox* FuncsGroup();
+
 	std::vector<QCheckBox*> checkFuncs_;
+	QCheckBox* checkWin32_;
+	QCheckBox* checkX64_;
 };
 
 #endif // MAINWINDOW_H

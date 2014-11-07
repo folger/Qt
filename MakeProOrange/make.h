@@ -2,14 +2,16 @@
 #define __MAKE_H__
 
 #include <vector>
+#include <functional>
 #define INFO_FILE "infos.json"
 class DoJob
 {
 public:
 	DoJob();
 	static bool InfoExists();
+	static QString GetAbsFile(const QString& file);
 
-	bool Do(bool x64);
+	bool Do(bool x64, std::function<bool (size_t)> pfnCheckInfo = nullptr);
 	bool GetFuncNames(std::vector<QString>& names);
 
 private:

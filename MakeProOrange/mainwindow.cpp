@@ -1,11 +1,12 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QMessageBox>
 #include "mainwindow.h"
 #include "make.h"
 
 MainWindow::MainWindow(QWidget *parent)
-	: QMainWindow(parent)
+	: QMainWindow(parent), doJob_(std::make_shared<DoJob>())
 {
 	setWindowTitle("Pro Orange");
 
@@ -13,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
 	layout->addWidget(PlatformGroup());
 	layout->addWidget(FuncsGroup());
 	auto btnDo = new QPushButton("Do");
+	connect(btnDo, &QPushButton::clicked, this, &MainWindow::Do);
 	layout->addWidget(btnDo);
 
 	setCentralWidget(new QWidget);
@@ -21,16 +23,16 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-
 }
 
 QGroupBox* MainWindow::PlatformGroup()
 {
 	auto layout = new QHBoxLayout();
-	checkWin32_ = new QCheckBox("Win32");
-	checkX64_ = new QCheckBox("x64");
-	layout->addWidget(checkWin32_);
-	layout->addWidget(checkX64_);
+	radioWin32_ = new QRadioButton("Win32");
+	radioX64_ = new QRadioButton("x64");
+	radioWin32_->setChecked(true);
+	layout->addWidget(radioWin32_);
+	layout->addWidget(radioX64_);
 	
     auto group = new QGroupBox("Platform");
 	group->setLayout(layout);
@@ -39,13 +41,14 @@ QGroupBox* MainWindow::PlatformGroup()
 
 QGroupBox* MainWindow::FuncsGroup()
 {
-	DoJob dojob;
 	std::vector<QString> funcnames;
-	dojob.GetFuncNames(funcnames);
+	doJob_->GetFuncNames(funcnames);
 
 	for (auto& name : funcnames)
 	{
-		checkFuncs_.push_back(new QCheckBox(name));
+		auto check = new QCheckBox(name);
+		check->setChecked(true);
+		checkFuncs_.push_back(check);
 	}
 
 	auto layout = new QVBoxLayout();
@@ -57,4 +60,14 @@ QGroupBox* MainWindow::FuncsGroup()
 	auto group = new QGroupBox("Functions");
 	group->setLayout(layout);
 	return group;
+}
+
+void MainWindow::Do()
+{
+	doJob_->Do(radioX64_->isChecked(),
+		[this](size_t index)
+		{
+			return checkFuncs_[index]->isChecked();
+		}
+	);
 }

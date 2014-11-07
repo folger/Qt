@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
 	if (!DoJob::InfoExists())
 	{
-		QMessageBox::information(nullptr, "Error", QString(INFO_FILE) + " is missing from current folder");
+		QMessageBox::information(nullptr, "Error", DoJob::GetAbsFile(INFO_FILE) + " is missing");
 		return 0;
 	}
 

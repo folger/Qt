@@ -4,12 +4,13 @@
 #include <QJsonObject>
 #include <QFile>
 #include <QRegularExpression>
+#include <QMessageBox>
 #include "make.h"
 
-QString GetAbsFile(const QString& file)
+QString DoJob::GetAbsFile(const QString& file)
 {
-	return "H:\\CheckCode\\Qt\\MakeProOrange\\" + file;
-	//return file;
+	//return "H:\\CheckCode\\Qt\\MakeProOrange\\" + file;
+	return file;
 }
 
 DoJob::DoJob() : inforead_(-1)
@@ -37,58 +38,72 @@ bool DoJob::GetFuncNames(std::vector<QString>& names)
 	return true;
 }
 
-bool DoJob::Do(bool x64)
+bool DoJob::Do(bool x64, std::function<bool (size_t)> pfnCheckInfo/* = nullptr*/)
 {
 	if (!ReadInfos())
 		return false;
-
-	std::vector<QRegularExpression> patterns;
-	for (auto info : infos_)
-	{
-		QString pattern = "0001:(\\w+)\\s+";
-		pattern += QRegularExpression::escape(info.GetFunc(x64));
-		patterns.push_back(QRegularExpression(pattern));
-	}
 
 	QString module = x64 ? "ok9_64" : "ok9";
 	QFile mapfile(GetAbsFile(module + ".map"));
 	if (!mapfile.open(QIODevice::ReadOnly))
 	{
-		qDebug() << mapfile.fileName() + " not found";
+		QMessageBox::information(nullptr, "Error", mapfile.fileName() + " is missing");
+		return false;
+	}
+	QString dll(GetAbsFile(module + ".dll"));
+	if (!QFile::exists(dll))
+	{
+		QMessageBox::information(nullptr, "Error", dll + " is missing");
 		return false;
 	}
 
+	std::vector<QRegularExpression> patterns;
+	std::vector<std::vector<char>> bytecodes;
+	for (size_t ii=0; ii<infos_.size(); ++ii)
+	{
+		if (pfnCheckInfo && !pfnCheckInfo(ii))
+			continue;
+		auto& info = infos_[ii];
+		QString pattern = "0001:(\\w+)\\s+";
+		pattern += QRegularExpression::escape(info.GetFunc(x64));
+		patterns.push_back(QRegularExpression(pattern));
+		bytecodes.push_back(info.bytecodes);
+	}
+
 	std::vector<QString> addresses;
+	std::vector<std::vector<char>> bytecodes2;
 	QTextStream in(&mapfile);
 	while (!in.atEnd())
 	{
 		QString line = in.readLine();
-		for (auto& re : patterns)
+		for (size_t ii=0; ii<patterns.size(); ++ii)
 		{
-			auto mm = re.match(line);
+			auto mm = patterns[ii].match(line);
 			if (mm.hasMatch())
 			{
 				addresses.push_back(mm.captured(1));
+				bytecodes2.push_back(bytecodes[ii]);
+				patterns.erase(patterns.begin() + ii);
+				bytecodes.erase(bytecodes.begin() + ii);
 				break;
 			}
 		}
-		if (addresses.size() == infos_.size())
-			break;
 	}
 	mapfile.close();
 
 	QString crackedFile(GetAbsFile(module + "_cracked" + ".dll"));
 	QFile::remove(crackedFile);
-	QFile::copy(GetAbsFile(module + ".dll"), crackedFile);
+	QFile::copy(dll, crackedFile);
 	QFile dllfile(crackedFile);
 	dllfile.open(QIODevice::ReadWrite);
 	for (size_t ii=0; ii<addresses.size(); ++ii)
 	{
 		qint64 pos = addresses[ii].toInt(nullptr, 16) + 0x400;
 		dllfile.seek(pos);
-		dllfile.write(infos_[ii].bytecodes.data(), infos_[ii].bytecodes.size());
+		dllfile.write(bytecodes2[ii].data(), bytecodes2[ii].size());
 	}
 	dllfile.close();
+	QMessageBox::information(nullptr, "Message", crackedFile + "is generated");
 
 	return true;
 }
@@ -102,7 +117,7 @@ bool DoJob::ReadInfos()
 	QFile loadFile(GetAbsFile(INFO_FILE));
 	if (!loadFile.open(QIODevice::ReadOnly))
 	{
-		qDebug() << "infos.json not found";
+		QMessageBox::information(nullptr, "Error", GetAbsFile(INFO_FILE) + " is missing");
 		return false;
 	}
 

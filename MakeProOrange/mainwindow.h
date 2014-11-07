@@ -2,9 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QRadioButton>
 #include <QCheckBox>
 #include <QGroupBox>
+#include <memory>
 
+class DoJob;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -17,9 +20,13 @@ private:
 	QGroupBox* PlatformGroup();
 	QGroupBox* FuncsGroup();
 
+	void Do();
+
 	std::vector<QCheckBox*> checkFuncs_;
-	QCheckBox* checkWin32_;
-	QCheckBox* checkX64_;
+	QRadioButton* radioWin32_;
+	QRadioButton* radioX64_;
+
+	std::shared_ptr<DoJob> doJob_;
 };
 
 #endif // MAINWINDOW_H

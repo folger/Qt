@@ -3,13 +3,14 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QMessageBox>
+#include <QDebug>
 #include "mainwindow.h"
+#include "UserAgeDialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
 	setWindowTitle(tr("Folger's first Qt Window"));
-	resize(400, 300);
 
 	openAction_ = new QAction(QIcon(":/images/doc-open"), tr("&Open..."), this);
 	openAction_->setShortcuts(QKeySequence::Open);
@@ -23,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	toolBar->addAction(openAction_);
 
 	statusBar()->addAction(openAction_);
+
+	setCentralWidget(new QWidget);
 }
 
 MainWindow::~MainWindow()
@@ -31,5 +34,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::open()
 {
-	QMessageBox::information(this, tr("Information"), tr("Open"));
+	UserAgeDialog dialog(this);
+	auto ret = dialog.exec();
+	if (ret == QDialog::Accepted)
+	{
+		qDebug() << dialog.getAge();
+	}
 }

@@ -13,6 +13,7 @@ public:
 
 private:
     void open();
+    void msgbox();
 
     QAction* openAction_;
 };

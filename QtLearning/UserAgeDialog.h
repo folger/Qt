@@ -4,10 +4,12 @@
 #include <QDialog>
 class UserAgeDialog : public QDialog
 {
+	Q_OBJECT
 public:
 	UserAgeDialog(QWidget* parent);
 	~UserAgeDialog();
 	int getAge() {return age_;}
+
 private:
 	QLayout* ageLayout();
 	QLayout* buttonLayout();

@@ -53,5 +53,5 @@ QLayout* UserAgeDialog::buttonLayout()
 }
 void UserAgeDialog::restricButtonWidth(QPushButton* btn)
 {
-	btn->setFixedWidth(60);
+    btn->setFixedWidth(70);
 }

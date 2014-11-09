@@ -1,11 +1,13 @@
+#include "mainwindow.h"
+#include "UserAgeDialog.h"
+#include "EventLabel.h"
 #include <QAction>
 #include <QMenuBar>
 #include <QToolBar>
 #include <QStatusBar>
 #include <QMessageBox>
 #include <QDebug>
-#include "mainwindow.h"
-#include "UserAgeDialog.h"
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -29,7 +31,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	statusBar()->addAction(openAction_);
 
+	auto label = new EventLabel(this);
+	label->setText("MouseEvent demo");
+	label->setMouseTracking(true);
+
+	auto layout = new QVBoxLayout;
+	layout->addWidget(label);
+
 	setCentralWidget(new QWidget);
+	centralWidget()->setLayout(layout);
 }
 
 MainWindow::~MainWindow()

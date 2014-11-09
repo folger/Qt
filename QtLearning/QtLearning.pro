@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
 		mainwindow.cpp\
-		UserAgeDialog.cpp
+		UserAgeDialog.cpp\
+		EventLabel.cpp
 
 HEADERS  += mainwindow.h\
-		UserAgeDialog.h
+		UserAgeDialog.h\
+		EventLabel.h
 
 FORMS	+=
 
